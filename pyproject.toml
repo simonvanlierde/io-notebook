@@ -1,0 +1,23 @@
+[project]
+name = "io-notebook"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "marimo>=0.25.0",
+    "numpy>=2.5.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.per-file-ignores]
+"io_leontief.py" = ["PLR1711"]  # marimo writes an explicit return at the end of every cell
