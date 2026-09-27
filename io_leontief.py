@@ -115,8 +115,8 @@ def _(mo):
     x = (I − A)⁻¹ y. The matrix L = (I − A)⁻¹ is the *Leontief inverse*.
 
     We solve (I − A) x = y with `numpy.linalg.solve` instead of computing the
-    inverse: solving is faster and more accurate, and RaMa-Scene's engine made
-    the same switch.
+    inverse: solving is faster and more accurate. The same switch is proposed
+    for RaMa-Scene's engine (a local branch, not merged).
     """)
     return
 
@@ -193,8 +193,8 @@ def _(mo):
 
     Change one technical coefficient (for example: Asian cement needs less
     electricity per euro) and/or one sector's final demand, by −50 % to +50 %.
-    RaMa-Scene expresses its scenarios the same way: a percentage change to a
-    cell of A or of final demand.
+    RaMa-Scene expresses its scenarios the same way: a percentage change to
+    selected cells of A or of final demand (here, one cell of each).
     """)
     return
 
@@ -275,9 +275,9 @@ def _(mo):
     ## 5. The harness check
 
     A model can return a plausible-looking number and still be wrong. The
-    first, second and fourth checks are the ones run next to every scenario on
-    the real RaMa-Scene engine; the Leontief identity is a direct check of the
-    solve. Here they rerun each time you move a slider.
+    first, second and fourth checks are the ones a test harness runs next to
+    every scenario on the real RaMa-Scene engine; the Leontief identity is a
+    direct check of the solve. Here they rerun each time you move a slider.
 
     * **0 % control**: a scenario that changes nothing must give exactly the baseline.
     * **Per-region recomputation**: emissions by region, recomputed by a
@@ -347,8 +347,8 @@ def _(mo):
     mo.md(r"""
     ## What the real engine adds
 
-    RaMa-Scene runs the same algebra on EXIOBASE: 49 countries × 200 products
-    = 9 800 sectors, so **A** has about 96 million cells. Its harness also
+    RaMa-Scene runs the same algebra on EXIOBASE: 49 regions (44 countries and 5
+    rest-of-world regions) × 200 products = 9 800 sectors, so **A** has about 96 million cells. Its harness also
     reproduces reference values computed independently in Octave. Try: set a
     coefficient change and a demand change with opposite signs, and see why
     the sign check then says "not applicable".
