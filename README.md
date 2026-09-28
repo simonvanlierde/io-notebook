@@ -9,8 +9,8 @@ runs in the browser through Pyodide.
 ## Run locally
 
 ```sh
-uvx marimo edit io_leontief.py   # edit and run
-uvx marimo run io_leontief.py    # app view
+uv run marimo edit io_leontief.py   # edit and run
+uv run marimo run io_leontief.py    # app view
 ```
 
 ## Export to a static web page
@@ -40,4 +40,5 @@ regression harness (`ramascene/tests/test_engine_regression.py`): a seeded
 
 ## Licence
 
-[author: decide]
+The code is released under the [MIT licence](LICENSE). The notebook uses
+synthetic data only.
