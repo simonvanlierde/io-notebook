@@ -1,10 +1,15 @@
 # io-notebook
 
 A [marimo](https://marimo.io) notebook that teaches environmentally extended
-input-output analysis on a 9-sector synthetic economy: the Leontief model,
-an emissions footprint, a slider-driven scenario, and the self-checks a real
-engine (RaMa-Scene) runs on every scenario. It needs only numpy, so it also
-runs in the browser through Pyodide.
+input-output analysis on a 9-sector synthetic economy: the Leontief quantity
+model, the carbon footprint of final demand, a slider-driven scenario, and
+self-checks modelled on those a real engine (RaMa-Scene) runs on every
+scenario. It needs only numpy, so it also runs in the browser through Pyodide.
+
+The notation follows Miller and Blair (2009), *Input-Output Analysis:
+Foundations and Extensions*, 2nd edition: $\mathbf{A}$ for the technical
+coefficients, $\mathbf{L} = (\mathbf{I} - \mathbf{A})^{-1}$ for the Leontief
+inverse, and $q = \mathbf{e}'\mathbf{L}\mathbf{y}$ for the footprint.
 
 ## Run locally
 
