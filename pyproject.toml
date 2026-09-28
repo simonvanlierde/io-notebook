@@ -6,7 +6,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
     "marimo>=0.25.0",
-    "numpy>=2.5.3",
+    "numpy>=2.4.3"  # the floor is the numpy that Pyodide ships to the browser,
 ]
 
 [dependency-groups]

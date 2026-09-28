@@ -15,5 +15,6 @@ jobs:
           enable-cache: true
       - run: uv sync --locked
       - run: uv run pytest
+      - run: uv run --isolated --resolution lowest-direct pytest  # the numpy floor the browser runs
       - run: uv run ruff check . && uv run ruff format --check .
       - run: uv run marimo check io_leontief.py

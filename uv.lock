@@ -172,7 +172,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "marimo", specifier = ">=0.25.0" },
-    { name = "numpy", specifier = ">=2.5.3" },
+    { name = "numpy", specifier = ">=2.4.3" },
 ]
 
 [package.metadata.requires-dev]
