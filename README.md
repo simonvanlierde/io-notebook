@@ -30,6 +30,14 @@ Use `--mode edit` to let readers change the code in the page. The page loads
 Pyodide and packages from cdn.jsdelivr.net, so readers need internet access.
 `dist/` (about 27 MB) is not committed.
 
+## Deploy
+
+Every push to `main` that passes the checks exports the page, smoke-tests it
+in Chromium, and deploys it to the Cloudflare Pages project `io-notebook`.
+The first run creates the project. The workflow needs two repository secrets:
+`CLOUDFLARE_API_TOKEN` (a token with the *Cloudflare Pages: Edit*
+permission) and `CLOUDFLARE_ACCOUNT_ID`.
+
 ## Checks
 
 ```sh
