@@ -38,6 +38,9 @@ The first run creates the project. The workflow needs two repository secrets:
 `CLOUDFLARE_API_TOKEN` (a token with the *Cloudflare Pages: Edit*
 permission) and `CLOUDFLARE_ACCOUNT_ID`.
 
+The deploy is off for now. It runs only when the repository variable
+`DEPLOY_PAGES` is `true`.
+
 ## Checks
 
 ```sh

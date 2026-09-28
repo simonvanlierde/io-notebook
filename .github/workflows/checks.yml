@@ -21,7 +21,8 @@ jobs:
 
   deploy:
     needs: checks
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # NOTE: off until the RaMa-Scene harness and explorer are public; set the repo variable DEPLOY_PAGES=true to enable
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_PAGES == 'true'
     runs-on: ubuntu-latest
     concurrency: deploy
     env:
