@@ -65,12 +65,13 @@ def _(mo):
     Sectors are ordered region by region: the three European products first,
     then Asia, then the Americas.
 
-    The numbers are random, not real data. The generator follows the
-    synthetic matrices of the RaMa-Scene regression harness
-    (`ramascene/tests/test_engine_regression.py`: seeded
-    `numpy.random.default_rng`, small random off-diagonal entries). A dense,
-    non-symmetric **A** matters: a mix-up of rows and columns changes the
-    answer, so the checks below can catch it.
+    The numbers are random, not real data. The generator borrows its recipe
+    from a regression harness for RaMa-Scene that is still in progress and not
+    in the public repository: a seeded `numpy.random.default_rng` and a dense,
+    non-symmetric matrix. That harness generates $\mathbf{L}$ directly; here we
+    generate $\mathbf{A}$ and solve. A dense, non-symmetric $\mathbf{A}$
+    matters: a mix-up of rows and columns changes the answer, so the checks
+    below can catch it.
     """)
     return
 
@@ -305,9 +306,11 @@ def _(mo):
     ## 5. The harness check
 
     A model can return a plausible-looking number and still be wrong. The
-    first, second and fourth checks are the ones a test harness runs next to
-    every scenario on the real RaMa-Scene engine; the Leontief identity is a
-    direct check of the solve. Here they rerun each time you move a slider.
+    first, second and fourth checks follow those that a scenario explorer
+    built on the RaMa-Scene engine (in progress, not public) runs next to
+    every scenario. Its sign check is narrower: every scenario there is a
+    cut, and no total may rise. The Leontief identity is a direct check of
+    the solve. Here all four rerun each time you move a slider.
 
     * **0 % control**: a scenario that changes nothing must give exactly the baseline.
     * **Per-region recomputation**: emissions by region, recomputed by a
@@ -377,9 +380,10 @@ def _(mo):
     mo.md(r"""
     ## What the real engine adds
 
-    RaMa-Scene runs the same algebra on EXIOBASE: 49 regions (44 countries and 5
-    rest-of-world regions) × 200 products = 9 800 sectors, so $\mathbf{A}$ has
-    about 96 million cells. Its harness also reproduces reference values
+    [RaMa-Scene](https://github.com/CMLPlatform/ramascene) runs the same
+    algebra on EXIOBASE: 49 regions (44 countries and 5 rest-of-world regions)
+    × 200 products = 9 800 sectors, so $\mathbf{A}$ has about 96 million
+    cells. Its test suite also compares results with reference values
     computed independently in Octave.
 
     ### Reflect
