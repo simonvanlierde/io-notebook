@@ -60,3 +60,10 @@ def test_scenario_does_not_mutate_baseline():
     apply_scenario(A, y, (4, 3), -50, 0, 50)
     np.testing.assert_array_equal(A, A_copy)
     np.testing.assert_array_equal(y, y_copy)
+
+
+def test_harness_flags_a_wrong_effect_sign():
+    A, y, b = make_economy()
+    A_s, y_s = apply_scenario(A, y, (4, 3), -50, 0, 0)
+    checks = harness_checks(A, y, b, A_s, y_s, coefficient_pct=50)  # claims a raise, applies a cut
+    assert checks["effect sign as expected"][0] is False
