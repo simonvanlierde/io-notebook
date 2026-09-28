@@ -18,6 +18,12 @@ def scenario_text(page):
     return page.get_by_text(FOOTPRINT).first.inner_text()
 
 
+def assert_all_pass(page, label):
+    results = page.locator("td").filter(has_text=re.compile(r"^(pass|FAIL)$")).all_inner_texts()
+    print(f"check results {label}:", results)
+    assert results.count("pass") == 4 and "FAIL" not in results, results
+
+
 with sync_playwright() as p:
     browser = p.chromium.launch()
     page = browser.new_page(viewport={"width": 1440, "height": 1500})
@@ -27,9 +33,7 @@ with sync_playwright() as p:
     expect(page.get_by_text("Harness check: all pass")).to_be_visible(timeout=300_000)
     print(f"notebook ran in {time.monotonic() - start:.1f} s")
 
-    results = page.locator("td").filter(has_text=re.compile(r"^(pass|FAIL)$")).all_inner_texts()
-    print("check results:", results)
-    assert results.count("pass") == 4 and "FAIL" not in results, results
+    assert_all_pass(page, "before")
     before = scenario_text(page)
     print("before:", before)
 
@@ -37,18 +41,14 @@ with sync_playwright() as p:
     slider.focus()
     slider.press("Home")  # coefficient change -> -50 %
     expect(page.get_by_text(FOOTPRINT).first).not_to_have_text(before, timeout=60_000)
+    # the harness table is its own cell: wait for its effect-sign detail to show the cut, not stale results
+    expect(page.get_by_text(re.compile(r"^change -")).first).to_be_visible(timeout=60_000)
     expect(page.get_by_text("Harness check: all pass")).to_be_visible(timeout=60_000)
     after = scenario_text(page)
     print("after slider to -50 %:", after)
-    results = page.locator("td").filter(has_text=re.compile(r"^(pass|FAIL)$")).all_inner_texts()
-    print("check results after:", results)
-    assert results.count("pass") == 4 and "FAIL" not in results, results
+    assert_all_pass(page, "after")
     assert float(FOOTPRINT.search(after)[1]) < float(FOOTPRINT.search(before)[1])
 
-    slider.evaluate("el => el.blur()")
-    page.mouse.move(0, 0)
-    page.get_by_role("heading", name="4. A scenario").evaluate("el => el.scrollIntoView({block: 'start'})")
-    page.wait_for_timeout(500)
     page.screenshot(path=SHOT)
     print("screenshot:", SHOT)
     browser.close()

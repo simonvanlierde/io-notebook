@@ -27,11 +27,12 @@ Pyodide and packages from cdn.jsdelivr.net, so readers need internet access.
 ## Checks
 
 ```sh
-uv run pytest                     # pure functions: Leontief identity, 0 % control, a hand-computed 2x2
+uv run pytest                     # pure functions, harness checks, and a headless run of every cell
 uv run ruff check . && uv run ruff format --check .
 uv run marimo check io_leontief.py
-# browser smoke test against a served dist/:
-uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ shot.png
+# browser smoke test against a served dist/ (install Chromium once first):
+uv run --with playwright playwright install chromium
+uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ dist/shot.png
 ```
 
 The synthetic economy follows the synthetic matrices in RaMa-Scene's
