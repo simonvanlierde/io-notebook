@@ -11,7 +11,9 @@ from io_leontief import (
     footprint,
     harness_checks,
     leontief_output,
+    low_rank_factors,
     make_economy,
+    woodbury_output,
 )
 
 
@@ -62,3 +64,45 @@ def test_harness_flags_a_wrong_effect_sign():
     A_s, y_s = apply_scenario(A, y, (4, 3), -50, 0, 0)
     checks = harness_checks(A, y, e, A_s, y_s, coefficient_pct=50)  # claims a raise, applies a cut
     assert checks["effect sign as expected"][0] is False
+
+
+def test_woodbury_hand_computed_two_by_two():
+    # A[0, 1] 0.3 -> 0.2: I - A_s = [[0.8, -0.2], [-0.1, 0.6]], det = 0.46
+    # L_s = [[0.6, 0.2], [0.1, 0.8]] / 0.46; y = (10, 20) -> x = (10, 17) / 0.46
+    A = np.array([[0.2, 0.3], [0.1, 0.4]])
+    A_s = np.array([[0.2, 0.2], [0.1, 0.4]])
+    U, V = low_rank_factors(A, A_s)
+    assert U.shape == (2, 1)
+    L = np.linalg.inv(np.eye(2) - A)
+    np.testing.assert_allclose(woodbury_output(L, U, V, np.array([10.0, 20.0])), [10 / 0.46, 17 / 0.46], rtol=1e-14)
+
+
+def test_woodbury_factors_rebuild_the_scenario():
+    A, y, _ = make_economy()
+    A_s, _ = apply_scenario(A, y, (4, 3), -50)
+    A_s[:, 7] *= 0.9  # a second changed column: rank 2
+    U, V = low_rank_factors(A, A_s)
+    assert U.shape == (len(A), 2)
+    np.testing.assert_allclose(A + U @ V.T, A_s, rtol=0, atol=1e-15)
+
+
+@pytest.mark.parametrize("columns", [[], [3], [3, 7], [0, 4, 8], list(range(9))])
+def test_woodbury_equals_full_resolve(columns):
+    A, y, _ = make_economy()
+    A_s = A.copy()
+    A_s[:, columns] *= 0.6
+    y_s = y * 1.1
+    U, V = low_rank_factors(A, A_s)
+    assert U.shape[1] == len(columns)
+    x_w = woodbury_output(np.linalg.inv(np.eye(len(A)) - A), U, V, y_s)
+    x_s = leontief_output(A_s, y_s)
+    assert np.abs(x_w - x_s).max() / np.abs(x_s).max() < 1e-12
+
+
+@pytest.mark.parametrize(("coef_pct", "demand_pct"), [(0, 0), (-50, 0), (0, 50), (30, -20), (50, 50)])
+def test_harness_woodbury_check_passes(coef_pct, demand_pct):
+    A, y, e = make_economy()
+    A_s, y_s = apply_scenario(A, y, (4, 3), coef_pct, 0, demand_pct)
+    ok, detail = harness_checks(A, y, e, A_s, y_s, coef_pct, demand_pct)["Woodbury update equals re-solve"]
+    assert ok, detail
+    assert detail.startswith(f"rank {int(coef_pct != 0)},")
