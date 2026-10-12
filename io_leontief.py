@@ -303,14 +303,82 @@ def _(baseline, e, mo, scenario, x, x_s):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## 5. The harness check
+    ## 5. Updating the baseline instead of re-solving: Woodbury
+
+    On EXIOBASE, $\mathbf{I} - \mathbf{A}$ has 9 800 rows. A serverless
+    explorer cannot solve that system again for every slider move, but it can
+    keep the baseline $\mathbf{L}$ (or, in practice, the few rows of
+    $\mathbf{e}'\mathbf{L}$ it needs) and *update* it. A scenario that changes
+    the coefficients in $k$ columns of $\mathbf{A}$ is a rank-$k$ change:
+
+    $$\mathbf{A}_s = \mathbf{A} + \mathbf{U}\mathbf{V}'$$
+
+    where $\mathbf{U}$ ($n \times k$) holds the changes to those columns and
+    $\mathbf{V}$ ($n \times k$) picks them out of the identity matrix. The
+    Woodbury matrix identity (the Sherman–Morrison formula when $k = 1$) gives the new inverse from the old one:
+
+    $$(\mathbf{I} - \mathbf{A} - \mathbf{U}\mathbf{V}')^{-1}
+      = \mathbf{L} + \mathbf{L}\mathbf{U}\,(\mathbf{I}_k - \mathbf{V}'\mathbf{L}\mathbf{U})^{-1}\,\mathbf{V}'\mathbf{L}$$
+
+    Only a $k \times k$ system is solved, and $k$ is the number of changed
+    columns: here 1, whatever the size of the economy. Applied to the
+    scenario's final demand, $\mathbf{x}_s = \mathbf{L}\mathbf{y}_s +
+    \mathbf{L}\mathbf{U}\,(\mathbf{I}_k - \mathbf{V}'\mathbf{L}\mathbf{U})^{-1}\,
+    \mathbf{V}'\mathbf{L}\mathbf{y}_s$.
+
+    The update is exact algebra, but it takes a different numerical route
+    from the full solve, so the harness below checks that both agree.
+    """)
+    return
+
+
+@app.function
+def low_rank_factors(A, A_s):
+    """(U, V) with A_s = A + U V': U holds the changed columns of A, V the matching columns of I."""
+    cols = np.flatnonzero((A_s != A).any(axis=0))
+    return (A_s - A)[:, cols], np.eye(len(A))[:, cols]
+
+
+@app.function
+def woodbury_output(L, U, V, y):
+    """Total output for A + U V' from the baseline Leontief inverse L, via the Woodbury identity."""
+    x = L @ y
+    if U.shape[1] == 0:
+        return x
+    LU = L @ U
+    return x + LU @ np.linalg.solve(np.eye(U.shape[1]) - V.T @ LU, V.T @ x)
+
+
+@app.cell
+def _(A, A_s, x_s, y_s):
+    U, V = low_rank_factors(A, A_s)
+    x_w = woodbury_output(np.linalg.inv(np.eye(len(A)) - A), U, V, y_s)
+    woodbury_gap = np.abs(x_w - x_s).max() / np.abs(x_s).max()
+    return U, woodbury_gap
+
+
+@app.cell(hide_code=True)
+def _(U, mo, woodbury_gap):
+    mo.md(
+        f"This scenario changes **{U.shape[1]}** column(s) of A, so the update solves a "
+        f"{U.shape[1]} × {U.shape[1]} system. Largest relative difference from the full "
+        f"re-solve: **{woodbury_gap:.1e}**."
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 6. The harness check
 
     A model can return a plausible-looking number and still be wrong. The
     first, second and fourth checks follow those that a scenario explorer
     built on the RaMa-Scene engine (in progress, not public) runs next to
     every scenario. Its sign check is narrower: every scenario there is a
     cut, and no total may rise. The Leontief identity is a direct check of
-    the solve. Here all four rerun each time you move a slider.
+    the solve, and the Woodbury check tests the update from section 5. Here
+    all five rerun each time you move a slider.
 
     * **0 % control**: a scenario that changes nothing must give exactly the baseline.
     * **Per-region recomputation**: emissions by region, recomputed by a
@@ -320,6 +388,8 @@ def _(mo):
       $(\mathbf{I} - \mathbf{A})\mathbf{x} = \mathbf{y}$, up to rounding (around 1e-16 to 1e-15 relative).
     * **Effect sign**: with only non-negative numbers, raising a coefficient
       or a demand can only raise the footprint, and lowering can only lower it.
+    * **Woodbury update equals re-solve**: the output updated from the
+      baseline $\mathbf{L}$ agrees with the full solve to 1e-12 relative.
     """)
     return
 
@@ -352,6 +422,11 @@ def harness_checks(A, y, e, A_s, y_s, coefficient_pct=0.0, demand_pct=0.0):
         checks["effect sign as expected"] = (np.sign(change) == expected, f"change {change:+.3g}")
     else:
         checks["effect sign as expected"] = (True, "not applicable (no change, or changes pull both ways)")
+
+    U, V = low_rank_factors(A, A_s)
+    x_w = woodbury_output(np.linalg.inv(np.eye(len(A)) - A), U, V, y_s)
+    gap = np.abs(x_w - x_s).max() / np.abs(x_s).max()
+    checks["Woodbury update equals re-solve"] = (gap < 1e-12, f"rank {U.shape[1]}, relative difference {gap:.1e}")
     return {name: (bool(ok), detail) for name, (ok, detail) in checks.items()}
 
 
