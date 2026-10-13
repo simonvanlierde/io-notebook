@@ -4,11 +4,12 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A [marimo](https://marimo.io) notebook that teaches environmentally extended
-input-output analysis on a 9-sector synthetic economy: the Leontief quantity
-model, the carbon footprint of final demand, a slider-driven scenario, and
-self-checks modelled on those a scenario explorer runs against a real engine,
-[RaMa-Scene](https://github.com/CMLPlatform/ramascene). It needs only numpy,
-so it also runs in the browser through Pyodide.
+input-output analysis on a synthetic economy of 9 sectors. It covers the
+Leontief quantity model, the carbon footprint of final demand and a scenario
+you change with a slider. It ends with self-checks, modelled on the checks a
+scenario explorer runs against a real engine,
+[RaMa-Scene](https://github.com/CMLPlatform/ramascene). The notebook needs
+only numpy, so it also runs in the browser through Pyodide.
 
 The notation follows Miller and Blair (2009), *Input-Output Analysis:
 Foundations and Extensions*, second edition: $\mathbf{A}$ for the technical
@@ -35,14 +36,14 @@ Pyodide and packages from cdn.jsdelivr.net, so readers need internet access.
 
 ## Deploy
 
-Every push to `main` that passes the checks exports the page, smoke-tests it
-in Chromium, and deploys it to the Cloudflare Pages project `io-notebook`.
-The first run creates the project. The workflow needs two repository secrets:
-`CLOUDFLARE_API_TOKEN` (a token with the *Cloudflare Pages: Edit*
-permission) and `CLOUDFLARE_ACCOUNT_ID`.
-
 The deploy is off for now. It runs only when the repository variable
 `DEPLOY_PAGES` is `true`.
+
+When it is on, every push to `main` that passes the checks exports the page,
+smoke-tests it in Chromium and deploys it to the Cloudflare Pages project
+`io-notebook`. The first run creates the project. The workflow needs two
+repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the *Cloudflare
+Pages: Edit* permission) and `CLOUDFLARE_ACCOUNT_ID`.
 
 ## Checks
 
@@ -55,10 +56,11 @@ uv run --with playwright playwright install chromium
 uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ dist/shot.png
 ```
 
-The synthetic economy borrows its recipe from a RaMa-Scene regression harness
-that is still in progress and not in the public repository. The recipe is a
-seeded `numpy.random.default_rng` and a dense, non-symmetric matrix. The scenario
-explorer whose checks the notebook mirrors is not public either.
+I took the recipe for the synthetic economy from a RaMa-Scene regression
+harness. That harness is still in progress and not in the public repository.
+The recipe is a seeded `numpy.random.default_rng` and a dense, non-symmetric
+matrix. The scenario explorer whose checks the notebook follows is not public
+either.
 
 ## Licence
 
