@@ -1,5 +1,8 @@
 # io-notebook
 
+[![checks](https://github.com/simonvanlierde/io-notebook/actions/workflows/checks.yml/badge.svg)](https://github.com/simonvanlierde/io-notebook/actions/workflows/checks.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A [marimo](https://marimo.io) notebook that teaches environmentally extended
 input-output analysis on a 9-sector synthetic economy: the Leontief quantity
 model, the carbon footprint of final demand, a slider-driven scenario, and
