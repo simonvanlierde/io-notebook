@@ -21,7 +21,8 @@ def scenario_text(page):
 def assert_all_pass(page, label):
     results = page.locator("td").filter(has_text=re.compile(r"^(pass|FAIL)$")).all_inner_texts()
     print(f"check results {label}:", results)
-    assert results.count("pass") == 4 and "FAIL" not in results, results
+    # one row per check in harness_checks (io_leontief.py)
+    assert results.count("pass") == 5 and "FAIL" not in results, results
 
 
 with sync_playwright() as p:
