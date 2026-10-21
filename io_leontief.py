@@ -136,7 +136,7 @@ def _(mo):
     `numpy.linalg.solve` instead of calculating $\mathbf{L}$ first. Solving is
     faster and more accurate. The same switch is proposed for RaMa-Scene's
     engine (see `LeontiefSolve` in [`modelling.py`](https://github.com/simonvanlierde/ramascene/blob/main/ramascene/modelling.py)). It is in the open pull
-    requests [#73](https://github.com/CMLPlatform/ramascene/pull/73) and [#74](https://github.com/CMLPlatform/ramascene/pull/74), both still open.
+    request [#74](https://github.com/CMLPlatform/ramascene/pull/74).
     """)
     return
 
