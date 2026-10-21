@@ -463,13 +463,54 @@ def _(mo):
     computed independently in Octave.
 
     ### Reflect
-
-    - Set a coefficient change and a demand change with opposite signs. Why
-      does the sign check then say "not applicable"?
-    - Make Asian cement use 50 % less Asian electricity. Why do the emissions
-      of Europe and the Americas change too, although their coefficients did
-      not?
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.vstack(
+        [
+            mo.md(
+                "- Set a coefficient change and a demand change with opposite signs. Why "
+                'does the sign check then say "not applicable"?'
+            ),
+            mo.accordion(
+                {
+                    "Show answer": mo.md(
+                        r"""
+    The check relies on all numbers being non-negative. Then $\mathbf{L}$ is
+    non-negative too, so raising a coefficient or a demand can only raise the
+    footprint, and lowering one can only lower it. With opposite signs, one
+    change pushes the footprint up and the other pushes it down. The net
+    direction depends on how large each effect is, so no sign is guaranteed
+    and the check does not judge it.
+    """
+                    )
+                }
+            ),
+            mo.md(
+                "- Make Asian cement use 50 % less Asian electricity. Why do the emissions "
+                "of Europe and the Americas change too, although their coefficients did "
+                "not?"
+            ),
+            mo.accordion(
+                {
+                    "Show answer": mo.md(
+                        r"""
+    $\mathbf{A}$ is dense: every sector buys from sectors in every region. Asian
+    cement now needs less Asian electricity, so Asia makes less electricity.
+    That in turn needs fewer inputs, from every region, and so on through all
+    rounds of $\mathbf{L} = \mathbf{I} + \mathbf{A} + \mathbf{A}^2 + \dots$.
+    Total output $\mathbf{x}$ falls in sectors far from the change, and
+    emissions are $\hat{\mathbf{e}}\mathbf{x}$, so they fall in every region,
+    Europe and the Americas included.
+    """
+                    )
+                }
+            ),
+        ]
+    )
     return
 
 
