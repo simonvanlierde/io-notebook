@@ -54,8 +54,8 @@ creates. It needs the repository secrets `CLOUDFLARE_API_TOKEN` (with the
 
 The notebook uses synthetic data only. I took its recipe, a seeded
 `numpy.random.default_rng` and a dense, non-symmetric matrix, from a RaMa-Scene
-regression harness that is still in progress and not in the public
-repository. The scenario explorer whose checks the notebook follows is not
-public either.
+regression harness, which is public on [my fork of RaMa-Scene](https://github.com/simonvanlierde/ramascene/blob/main/ramascene/tests/test_engine_regression.py).
+The same harness is an open pull request against the upstream repository
+([#72](https://github.com/CMLPlatform/ramascene/pull/72)).
 
 The code is released under the [MIT licence](LICENSE).
