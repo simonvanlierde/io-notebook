@@ -44,11 +44,9 @@ uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ dis
 
 ## Deploy
 
-Off unless the repository variable `DEPLOY_PAGES` is `true`. Then every push to
-`main` that passes the checks exports the page, smoke-tests it in Chromium and
-deploys it to the Cloudflare Pages project `io-notebook`, which the first run
-creates. It needs the repository secrets `CLOUDFLARE_API_TOKEN` (with the
-*Cloudflare Pages: Edit* permission) and `CLOUDFLARE_ACCOUNT_ID`.
+The page is live at <https://simonvanlierde.github.io/io-notebook/>. Every push
+to `main` that passes the checks exports the page, smoke-tests it in Chromium
+and deploys it to GitHub Pages.
 
 ## Data and licence
 
