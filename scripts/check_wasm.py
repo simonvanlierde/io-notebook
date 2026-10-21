@@ -19,7 +19,10 @@ def scenario_text(page):
 
 
 def assert_all_pass(page, label):
-    results = page.locator("td").filter(has_text=re.compile(r"^(pass|FAIL)$")).all_inner_texts()
+    cells = page.locator("td").filter(has_text=re.compile(r"^(pass|FAIL)$"))
+    # The table is its own cell and can render after the summary line the caller waited for.
+    expect(cells).to_have_count(5, timeout=60_000)
+    results = cells.all_inner_texts()
     print(f"check results {label}:", results)
     # one row per check in harness_checks (io_leontief.py)
     assert results.count("pass") == 5 and "FAIL" not in results, results
