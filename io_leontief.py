@@ -66,8 +66,8 @@ def _(mo):
     then Asia, then the Americas.
 
     The numbers are random, not real data. The generator borrows its recipe
-    from a regression harness for RaMa-Scene that is still in progress and not
-    in the public repository: a seeded `numpy.random.default_rng` and a dense,
+    from the [RaMa-Scene regression harness](https://github.com/simonvanlierde/ramascene/blob/main/ramascene/tests/test_engine_regression.py),
+    which is public on a fork: a seeded `numpy.random.default_rng` and a dense,
     non-symmetric matrix. That harness generates $\mathbf{L}$ directly; here we
     generate $\mathbf{A}$ and solve. A dense, non-symmetric $\mathbf{A}$
     matters: a mix-up of rows and columns changes the answer, so the checks
@@ -135,7 +135,8 @@ def _(mo):
     We solve $(\mathbf{I} - \mathbf{A})\mathbf{x} = \mathbf{y}$ with
     `numpy.linalg.solve` instead of calculating $\mathbf{L}$ first. Solving is
     faster and more accurate. The same switch is proposed for RaMa-Scene's
-    engine, on a local branch that is not merged.
+    engine (see `LeontiefSolve` in [`modelling.py`](https://github.com/simonvanlierde/ramascene/blob/main/ramascene/modelling.py)). It is in the open pull
+    requests [#73](https://github.com/CMLPlatform/ramascene/pull/73) and [#74](https://github.com/CMLPlatform/ramascene/pull/74), both still open.
     """)
     return
 
@@ -374,7 +375,7 @@ def _(mo):
 
     A model can return a plausible-looking number and still be wrong. The
     first, second and fourth checks follow those that a scenario explorer
-    built on the RaMa-Scene engine (in progress, not public) runs next to
+    built on the RaMa-Scene engine runs next to
     every scenario. Its sign check is narrower: every scenario there is a
     cut, and no total may rise. The Leontief identity is a direct check of
     the solve, and the Woodbury check tests the update from section 5. Here
