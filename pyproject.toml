@@ -5,8 +5,8 @@ requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [
-    "marimo>=0.25.0",
-    "numpy>=2.4.3"  # the floor is the numpy that Pyodide ships to the browser
+    "marimo>=0.25.1",
+    "numpy>=2.5.4"  # the floor is the numpy that Pyodide ships to the browser
 ]
 
 [dependency-groups]
