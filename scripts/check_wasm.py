@@ -1,9 +1,10 @@
-"""Open the exported WASM notebook in headless Chromium and check it runs.
+"""Open the exported WASM notebook in headless Chromium and check it runs and has no WCAG 2.2 AA violations.
 
 Usage: uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:PORT/ SCREENSHOT.png
 Needs the dist/ export served over HTTP and internet access (Pyodide loads from cdn.jsdelivr.net).
 """
 
+import json
 import re
 import sys
 import time
@@ -11,7 +12,26 @@ import time
 from playwright.sync_api import expect, sync_playwright
 
 URL, SHOT = sys.argv[1], sys.argv[2]
+AXE_URL = "https://cdn.jsdelivr.net/npm/axe-core@4.13.0/axe.min.js"  # same CDN the page already needs
+AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
+# Elements of marimo's own widgets that fail axe and that the notebook cannot change (axe-core 4.13.0, marimo 0.25.1).
+# All rules stay on for the rest of the page. If marimo renames an element, the new name fails the scan loudly.
+AXE_EXCLUDE = [  # light-DOM elements, left out of the scan
+    '[data-testid="notebook-actions-dropdown"]',  # button-name: marimo's icon-only menu button
+    '[data-testid="watermark"]',  # color-contrast: marimo's "made with marimo" badge
+]
+# Shadow-DOM elements: axe's exclude cannot reach inside a shadow root, so drop these violations after the scan.
+# (rule, marimo widget host, regex on the node target). Cell content in marimo-table still gets checked.
+AXE_MARIMO_WIDGETS = [
+    ("aria-input-field-name", "marimo-slider", ""),  # marimo's slider thumb has no accessible name
+    ("color-contrast", "marimo-table", r'"button\[|opacity-80|italic'),  # muted table toolbar buttons, "No selection"
+]
 FOOTPRINT = re.compile(r"Scenario footprint: ([\d.]+) kt CO2-eq")
+
+
+def is_marimo_widget(rule, target):
+    text = json.dumps(target)
+    return any(r == rule and host in text and re.search(inner, text) for r, host, inner in AXE_MARIMO_WIDGETS)
 
 
 def scenario_text(page):
@@ -52,6 +72,18 @@ with sync_playwright() as p:
     print("after slider to -50 %:", after)
     assert_all_pass(page, "after")
     assert float(FOOTPRINT.search(after)[1]) < float(FOOTPRINT.search(before)[1])
+
+    page.add_script_tag(url=AXE_URL)
+    violations = page.evaluate(
+        "([tags, exclude]) => axe.run({exclude}, {runOnly: tags}).then(r => r.violations)", [AXE_TAGS, AXE_EXCLUDE]
+    )
+    for v in violations:
+        v["nodes"] = [n for n in v["nodes"] if not is_marimo_widget(v["id"], n["target"])]
+    violations = [v for v in violations if v["nodes"]]
+    for v in violations:
+        print(f"axe {v['impact']} {v['id']}: {v['help']} ({len(v['nodes'])} nodes, first: {v['nodes'][0]['target']})")
+    assert not violations, f"{len(violations)} WCAG 2.2 AA violations"
+    print("axe: no WCAG 2.2 AA violations")
 
     page.screenshot(path=SHOT)
     print("screenshot:", SHOT)
