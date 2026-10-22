@@ -23,7 +23,6 @@ AXE_EXCLUDE = [  # light-DOM elements, left out of the scan
 # Shadow-DOM elements: axe's exclude cannot reach inside a shadow root, so drop these violations after the scan.
 # (rule, marimo widget host, regex on the node target). Cell content in marimo-table still gets checked.
 AXE_MARIMO_WIDGETS = [
-    ("aria-input-field-name", "marimo-slider", ""),  # marimo's slider thumb has no accessible name
     ("color-contrast", "marimo-table", r'"button\[|opacity-80|italic'),  # muted table toolbar buttons, "No selection"
 ]
 FOOTPRINT = re.compile(r"Scenario footprint: ([\d.]+) kt CO2-eq")
