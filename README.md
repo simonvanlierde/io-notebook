@@ -48,6 +48,11 @@ The page is live at <https://simonvanlierde.com/io-notebook/>. Every push
 to `main` that passes the checks exports the page, smoke-tests it in Chromium
 and deploys it to GitHub Pages.
 
+Each pull request gets a preview at a `pr-<number>` address on Cloudflare
+Workers, linked from the PR as its `preview` deployment (`wrangler.jsonc`). The
+job needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the `preview`
+environment's secrets, and skips without them.
+
 ## Data and licence
 
 The notebook uses synthetic data only. I took its recipe, a seeded
