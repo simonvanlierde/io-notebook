@@ -44,7 +44,7 @@ uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ dis
 
 ## Deploy
 
-The page is live at <https://simonvanlierde.github.io/io-notebook/>. Every push
+The page is live at <https://simonvanlierde.com/io-notebook/>. Every push
 to `main` that passes the checks exports the page, smoke-tests it in Chromium
 and deploys it to GitHub Pages.
 
