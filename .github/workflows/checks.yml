@@ -46,6 +46,86 @@ jobs:
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: dist
+      - if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+
+  # Uploads a PR's export as a version of the preview Worker in wrangler.jsonc,
+  # at a stable pr-<number> URL that the PR shows as its deployment. Fork PRs
+  # never get the token, so they skip with a notice, as does a missing secret.
+  # The secrets live in the `preview` environment.
+  preview:
+    needs: [checks, wasm]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: preview
+      url: ${{ steps.upload.outputs.url }}
+    steps:
+      - id: gate
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          if [ "$FORK" = "true" ] || [ -z "$TOKEN" ]; then
+            echo "::notice::Preview skipped: fork PR or CLOUDFLARE_API_TOKEN not set."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - if: steps.gate.outputs.run == 'true'
+        uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3
+        with:
+          runtime: node@26
+          install: false
+      - if: steps.gate.outputs.run == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+      - if: steps.gate.outputs.run == 'true'
+        name: Keep previews out of search results
+        run: |
+          printf '/*\n  X-Robots-Tag: noindex\n' > dist/_headers
+      - if: steps.gate.outputs.run == 'true'
+        name: Upload Worker version
+        id: upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        # pipefail: the default shell takes the pipe's status from tee, so a
+        # refused upload would otherwise pass.
+        run: |
+          set -o pipefail
+          upload() {
+            pnpm dlx wrangler@4.150.0 versions upload --preview-alias "pr-$PR" --message "PR $PR at $SHA" 2>&1 | tee upload.log
+          }
+          if ! upload; then
+            # Only an existing Worker takes versions. Create it once with a
+            # placeholder page, so its own workers.dev address never serves a PR.
+            grep -q 'does not yet exist' upload.log || exit 1
+            mkdir placeholder
+            cp dist/_headers placeholder/
+            echo 'Pull request previews of io-notebook live at pr-NUMBER addresses.' > placeholder/index.html
+            pnpm dlx wrangler@4.150.0 deploy --assets placeholder
+            upload
+          fi
+          url=$(grep 'Version Preview Alias URL:' upload.log | grep -Eo 'https://[^ ]+' || true)
+          if [ -z "$url" ]; then
+            echo "::error::Version uploaded, but wrangler printed no alias URL. Check preview_urls and workers_dev in wrangler.jsonc."
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Preview: $url" >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     needs: [checks, wasm]
