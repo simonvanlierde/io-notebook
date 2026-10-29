@@ -3,7 +3,9 @@ name: checks
 on:
   push:
     branches: [main]
+  # ready_for_review too, so a draft gets its preview when it is marked ready.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -59,7 +61,9 @@ jobs:
   # The secrets live in the `preview` environment.
   preview:
     needs: [checks, wasm]
-    if: github.event_name == 'pull_request'
+    # Drafts get no preview; preview-retire.yml takes it down when a PR turns
+    # draft or closes.
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     runs-on: ubuntu-latest
     environment:
       name: preview
@@ -83,6 +87,7 @@ jobs:
       - if: steps.gate.outputs.run == 'true'
         uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3
         with:
+          version: 11.10.0 # no package.json here to name it
           runtime: node@26
           install: false
       - if: steps.gate.outputs.run == 'true'
