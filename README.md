@@ -51,7 +51,9 @@ and deploys it to GitHub Pages.
 Each pull request gets a preview at a `pr-<number>` address on Cloudflare
 Workers, linked from the PR as its `preview` deployment (`wrangler.jsonc`). The
 job needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the `preview`
-environment's secrets, and skips without them.
+environment's secrets, and skips without them. Drafts get no preview. When a PR
+closes or turns draft, `preview-retire.yml` points its address at a short
+"preview closed" page, since wrangler cannot delete an alias.
 
 ## Data and licence
 
