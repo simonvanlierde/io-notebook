@@ -53,7 +53,12 @@ With Playwright and Chromium installed:
 ```sh
 playwright screenshot --browser=chromium --viewport-size=1200,630 --wait-for-timeout=2500 \
   file://$PWD/docs/og-card.html public/og.png
+sed -i.bak "s|og.png?v=[0-9a-f]*|og.png?v=$(shasum -a 256 public/og.png | cut -c1-8)|" head.html
+rm head.html.bak
 ```
+
+The `sed` line sets the `?v=` on the `og:image` URL to the PNG's hash, because link previews are cached by
+image URL. `tests/test_io_leontief.py` fails when the two disagree.
 
 ## Deploy
 
