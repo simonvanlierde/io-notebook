@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>io-notebook social card</title>
+<!-- Source of public/og.png. Render: see README.md, "Social card". Needs network for the fonts and KaTeX. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=PT+Sans:wght@400;700&family=Fira+Mono&display=block">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<style>
+  /* The notebook page's own tokens and fonts (marimo's default theme). */
+  :root { --bg: #fff; --fg: #0f172a; --muted: #64748b; --primary: #0880ea; --link: #0b68cb; --accent: #edf6ff; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; background: var(--bg); color: var(--fg); overflow: hidden; }
+  /* Everything that carries meaning sits in the centred 630 px column. */
+  main { position: absolute; left: 285px; top: 0; width: 630px; height: 630px; padding-top: 40px; }
+  h1 { font: 700 88px/1 Lora, serif; letter-spacing: -0.02em; color: var(--link); }
+  .job { margin-top: 10px; font: 400 36px/1.15 "PT Sans", sans-serif; color: var(--muted); }
+  .eq { margin-top: 32px; padding: 44px 0; text-align: center; font-size: 84px; line-height: 1.1; white-space: nowrap; background: var(--accent); border: 1px solid #c9def5; border-radius: 12px; }
+  .eq .katex { font-size: 1em; }
+  .fig { margin-top: 32px; font: 400 36px/1.2 "PT Sans", sans-serif; color: var(--fg); }
+  .fig .katex { font-size: 1em; }
+  .url { position: absolute; left: 0; bottom: 24px; font: 400 32px/1 "Fira Mono", monospace; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>io-notebook</h1>
+  <p class="job">Learn the Leontief input-output model</p>
+  <p class="eq" id="eq">$\mathbf{x} = (\mathbf{I} - \mathbf{A})^{-1}\mathbf{y}$</p>
+  <p class="fig" id="fig">footprint $q = \mathbf{e}'\mathbf{x} = 650.81$ kt CO$_2$-eq</p>
+  <p class="url">simonvanlierde.com/io-notebook</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] });
+  document.fonts.ready.then(() => document.body.setAttribute("data-ready", ""));
+</script>
+</body>
+</html>
