@@ -56,6 +56,13 @@ with sync_playwright() as p:
     expect(page.get_by_text("Harness check: all pass")).to_be_visible(timeout=300_000)
     print(f"notebook ran in {time.monotonic() - start:.1f} s")
 
+    # The social card: the tags in head.html reach the export, and the PNG they name is served with it.
+    og = page.locator('meta[property="og:image"]').get_attribute("content")
+    assert og == "https://simonvanlierde.com/io-notebook/public/og.png", og
+    assert page.locator('meta[name="twitter:card"]').get_attribute("content") == "summary_large_image"
+    card = page.request.get(URL + "public/og.png")
+    assert card.ok and card.headers["content-type"] == "image/png", card.status
+
     assert_all_pass(page, "before")
     before = scenario_text(page)
     print("before:", before)

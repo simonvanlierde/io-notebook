@@ -42,6 +42,19 @@ uv run --with playwright playwright install chromium
 uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ dist/shot.png
 ```
 
+## Social card
+
+[`public/og.png`](public/og.png) is the 1200x630 card shown when the link is shared. It is rendered from
+[`docs/og-card.html`](docs/og-card.html), which sets the equation in KaTeX and takes its fonts from the
+notebook page's own theme, so rendering needs network access. The figure is the baseline footprint
+the notebook prints for `make_economy()`. marimo copies `public/` into the export, and `head.html` holds the tags.
+With Playwright and Chromium installed:
+
+```sh
+playwright screenshot --browser=chromium --viewport-size=1200,630 --wait-for-timeout=2500 \
+  file://$PWD/docs/og-card.html public/og.png
+```
+
 ## Deploy
 
 The page is live at <https://simonvanlierde.com/io-notebook/>. Every push
