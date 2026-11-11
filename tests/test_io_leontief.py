@@ -1,3 +1,5 @@
+import re
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -106,3 +108,14 @@ def test_harness_woodbury_check_passes(coef_pct, demand_pct):
     ok, detail = harness_checks(A, y, e, A_s, y_s, coef_pct, demand_pct)["Woodbury update equals re-solve"]
     assert ok, detail
     assert detail.startswith(f"rank {int(coef_pct != 0)},")
+
+
+def test_social_card_tags_name_the_committed_png():
+    root = Path(__file__).parent.parent
+    head = (root / "head.html").read_text()
+    url = re.search(r'property="og:image" content="https://simonvanlierde.com/io-notebook/([^"]+)"', head).group(1)
+    # IHDR width and height sit at bytes 16-24 of a PNG
+    width, height = struct.unpack(">II", (root / url).read_bytes()[16:24])
+    assert (width, height) == (1200, 630)
+    assert 'property="og:image:width" content="1200"' in head
+    assert 'property="og:image:height" content="630"' in head

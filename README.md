@@ -42,6 +42,19 @@ uv run --with playwright playwright install chromium
 uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:8000/ dist/shot.png
 ```
 
+## Social card
+
+[`public/og.png`](public/og.png) is the 1200x630 card shown when the link is shared. It is made with the generator in
+[my site repo](https://github.com/simonvanlierde/simonvanlierde.github.io/tree/main/scripts/social-card)
+(needs Docker). The visual is a screenshot of the live page at phone width, cropped. marimo copies `public/` into the export, and `head.html` holds the tags. From a checkout of
+that repo, with this repo next to it:
+
+```sh
+pnpm gen:card --visual ../io-notebook/scripts/og-visual.jpg --name "io-notebook" \
+  --line "A notebook that teaches the Leontief input-output model." \
+  --domain simonvanlierde.com/io-notebook --out ../io-notebook/public/og.png
+```
+
 ## Deploy
 
 The page is live at <https://simonvanlierde.com/io-notebook/>. Every push
