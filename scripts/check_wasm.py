@@ -4,10 +4,12 @@ Usage: uv run --with playwright python scripts/check_wasm.py http://127.0.0.1:PO
 Needs the dist/ export served over HTTP and internet access (Pyodide loads from cdn.jsdelivr.net).
 """
 
+import hashlib
 import json
 import re
 import sys
 import time
+from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -58,7 +60,8 @@ with sync_playwright() as p:
 
     # The social card: the tags in head.html reach the export, and the PNG they name is served with it.
     og = page.locator('meta[property="og:image"]').get_attribute("content")
-    assert og == "https://simonvanlierde.com/io-notebook/public/og.png", og
+    card_hash = hashlib.sha256(Path("public/og.png").read_bytes()).hexdigest()[:8]
+    assert og == f"https://simonvanlierde.com/io-notebook/public/og.png?v={card_hash}", og
     assert page.locator('meta[name="twitter:card"]').get_attribute("content") == "summary_large_image"
     card = page.request.get(URL + "public/og.png")
     assert card.ok and card.headers["content-type"] == "image/png", card.status

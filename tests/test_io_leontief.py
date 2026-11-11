@@ -1,3 +1,4 @@
+import hashlib
 import re
 import struct
 import subprocess
@@ -113,7 +114,11 @@ def test_harness_woodbury_check_passes(coef_pct, demand_pct):
 def test_social_card_tags_name_the_committed_png():
     root = Path(__file__).parent.parent
     head = (root / "head.html").read_text()
-    url = re.search(r'property="og:image" content="https://simonvanlierde.com/io-notebook/([^"]+)"', head).group(1)
+    url, version = re.search(
+        r'property="og:image" content="https://simonvanlierde.com/io-notebook/([^"?]+)\?v=([0-9a-f]{8})"', head
+    ).groups()
+    # Link previews are cached by image URL, so ?v= must be the PNG's hash
+    assert version == hashlib.sha256((root / url).read_bytes()).hexdigest()[:8]
     # IHDR width and height sit at bytes 16-24 of a PNG
     width, height = struct.unpack(">II", (root / url).read_bytes()[16:24])
     assert (width, height) == (1200, 630)
