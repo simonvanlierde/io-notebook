@@ -64,6 +64,9 @@ jobs:
     # Drafts get no preview; preview-retire.yml takes it down when a PR turns
     # draft or closes.
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+    # Shares preview-retire.yml's group, so a retire waits for an upload in flight.
+    concurrency:
+      group: preview-${{ github.event.pull_request.number }}
     runs-on: ubuntu-latest
     environment:
       name: preview
